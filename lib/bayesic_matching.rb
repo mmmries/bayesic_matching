@@ -1,15 +1,15 @@
 require "bayesic_matching/version"
+require "set"
 
 class BayesicMatching
   def initialize
-    @classifications = []
+    @classifications = ::Set.new
     @classifications_by_token = {}
     @tokens_by_classification = {}
-    @total_token_entries = 0.0
   end
 
   def classify(tokens)
-    tokens = tokens.reject{|t| @classifications_by_token[t].nil? }
+    tokens = tokens.reject{|t| @classifications_by_token[t].nil? }.uniq
     tokens.each_with_object({}) do |token, hash|
       @classifications_by_token[token].each do |c|
         p_klass = hash[c] || (1.0 / @classifications.size)
@@ -23,12 +23,11 @@ class BayesicMatching
 
   def train(tokens, classification)
     @classifications << classification
-    @tokens_by_classification[classification] ||= []
-    @tokens_by_classification[classification].concat(tokens)
+    @tokens_by_classification[classification] ||= ::Set.new
     tokens.each do |token|
-      @classifications_by_token[token] ||= []
+      @tokens_by_classification[classification] << token
+      @classifications_by_token[token] ||= ::Set.new
       @classifications_by_token[token] << classification
-      @total_token_entries += 1.0
     end
   end
 end
