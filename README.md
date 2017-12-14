@@ -1,43 +1,39 @@
 # BayesicMatching
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/bayesic_matching`. To experiment with that code, run `bin/console` for an interactive prompt.
+Like NaiveBayes, except useful for the case of many possible classes with small training sets per class.
 
-TODO: Delete this and the text above, and describe your gem
-
-## Installation
-
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'bayesic_matching'
-```
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install bayesic_matching
+This is useful if you have two lists of names or titles and you want to match between them with a given confidence level.
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+matcher = BayesicMatching.new
+matcher.train(["it","was","the","best","of","times"], "novel")
+matcher.train(["tonight","on","the","seven","o'clock"], "news")
 
-## Development
+matcher.classify(["the","best","of"])
+# => {"novel"=>1.0, "news"=>0.667}
+matcher.classify(["the","time"])
+#  => {"novel"=>0.667, "news"=>0.667}
+``` 
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+## How It Works
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+This library uses the basic idea of [Bayes Theorem](https://en.wikipedia.org/wiki/Bayes%27_theorem).
 
-## Contributing
+It records which tokens it has seen for each possible classification. Later when you pass a set of tokens and ask for the most likely classification it looks for all potential matches and then ranks them by considering the probabily of any given match according to the tokens that it sees.
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/bayesic_matching. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+Tokens which exist in many records (ie not very unique) have a smaller impact on the probability of a match and more unique tokens have a larger impact.
+
+## Will It Work For My Dataset?
+
+I'm using this in a project that has to match several hundred records against a list of ~10k possible matches.
+At these sizes this project will train a matcher in ~10ms and each record that I check for a match takes ~1.2ms.
+
+You can try it out with your own dataset by producing two simple CSV files and running the `examples/benchmark.rb` script in this repo.
+For example you can run `bundle exec ruby benchmark.rb popular_recent_movies.csv favorite_recent_movies.csv` (those two files are provided in the examples directory as well).
+If you can create a similar pair of CSV files you can test on whatever dataset you want and see the accuracy and performance of the library.
 
 ## License
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
-
-## Code of Conduct
-
-Everyone interacting in the BayesicMatching project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/bayesic_matching/blob/master/CODE_OF_CONDUCT.md).

@@ -12,21 +12,15 @@ end
 training_csv_path = ARGV[0]
 matching_csv_path = ARGV[1]
 
-# You can tokenize your strings using many different schemes. Below are two common defaults you might want to choose.
-# you can change this to do trigrams or something else
-# this default implementation creates a list of downcased words
-# with punctuation stripped off
-# and removes words less than 2 characters long
- def tokenize_string(str)
-   str.downcase.split(/\b+/).map do |word|
-     word.gsub(/[^\w ]/,"")
-   end.reject{|word| word.size < 2 }
- end
- # a version which glues all of the downcased words together and
- # splits them into trigrams
-#def tokenize_string(str)
-#  str.downcase.gsub(/[^\w]/,"").chars.each_cons(3).to_a.map{|trigram| trigram.join("") }
-#end
+# You can tokenize your strings using many different schemes.
+# The method below just downcases and splits on word boundaries,
+# then removes punctuation and filters single-letter words.
+# Feel free to change this to a tokenization scheme of your preference
+def tokenize_string(str)
+  str.downcase.split(/\b+/).map do |word|
+    word.gsub(/[^\w ]/,"")
+  end.reject{|word| word.size < 2 }
+end
 
 training_rows = []
 ::CSV.foreach(training_csv_path, :headers => true, :header_converters => :symbol) do |row|
