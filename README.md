@@ -7,15 +7,24 @@ This is useful if you have two lists of names or titles and you want to match be
 ## Usage
 
 ```ruby
-matcher = BayesicMatching.new
-matcher.train(["it","was","the","best","of","times"], "novel")
-matcher.train(["tonight","on","the","seven","o'clock"], "news")
+trainer = BayesicMatching.new
+trainer.train(["it","was","the","best","of","times"], "novel")
+trainer.train(["tonight","on","the","seven","o'clock"], "news")
+matcher = trainer.finalize
 
 matcher.classify(["the","best","of"])
 # => {"novel"=>1.0, "news"=>0.667}
 matcher.classify(["the","time"])
 #  => {"novel"=>0.667, "news"=>0.667}
-``` 
+```
+
+## Pruning
+
+One of the fastest ways to improve the speed of matching is to prune common tokens.
+For example, if the token "the" is present in every single classification, then its presence doesn't tell you much about your confidence of a match, but we `BayesicMatching` would now return a confidence for every possible classification.
+To avoid this there is a default pruning where any token that exists in more than 50% of your classifications will get pruned during the `finalize` call.
+You can tune this pruning by passing `.finalize(pruning_percent: 0.25)`.
+In my own usage I've found that pruning tokens that exist in more than `0.2` of all classifications has almost no impact on accuracy, but gives me a significant speed boost.
 
 ## How It Works
 
