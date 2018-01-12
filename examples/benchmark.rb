@@ -33,11 +33,11 @@ matching_rows = []
 end
 
 def train_matcher(training_rows)
-  matcher = BayesicMatching.new
+  trainer = BayesicMatching.new
   training_rows.each do |row|
-    matcher.train(row[:tokens], row[:id])
+    trainer.train(row[:tokens], row[:id])
   end
-  matcher
+  trainer.finalize(pruning_percent: 0.2)
 end
 
 def attempt_matches(matcher, matching_rows, print_mismatch_data = false)
